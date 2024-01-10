@@ -573,48 +573,6 @@ async function calculateRankingList() {
   console.log("成功导入排行榜数据");
 }
 
-app.post("/add/user", function (req, res) {
-  const thisnickname = req.body.nickname;
-  const thisavatar = req.body.avatar;
-  const thisusername = req.body.username;
-  const thisregistertime = req.body.register_time;
-  const thislogintime = req.body.login_time;
-  const thisvxid = req.body.vx_id;
-  const thisremark = req.body.remark;
-  // 生成UUID作为用户ID 其实这个包准确的是叫生成nanoid
-  let uuid = nanoid();
-  // 插入用户信息到数据库
-  const sql2 = `INSERT INTO user_tbl (userid,nickname,avatar,username,register_time,login_time,vx_id,remark) VALUES ('${uuid}','${thisnickname}' , '${thisavatar}' , '${thisusername}' ,'${thisregistertime}'  , '${thislogintime}' , '${thisvxid}' , '${thisremark}') `;
-  connection.query(sql2, (err, result) => {
-    if (result.length == 0 || err) {
-      res.status(500).json("添加用户信息失败");
-    } else {
-      // 对用户信息进行微信验证
-      const params = {
-        appid: "your_appid", // 替换为你的微信公众平台appId
-        secret: "your_secret", // 替换为你的微信公众平台secret
-
-        jsapi_ticket: "your_jsapi_ticket", // 替换为你的微信公众平台jsapi_ticket  jsapi_ticket：是用来调用微信JS接口的票据，通常在调用微信JS接口时需要使用。
-        noncestr: "your_noncestr", // 替换为你的微信公众平台noncestr  noncestr：随机字符串，长度为32个字符，通常在调用微信支付接口时需要使用。
-        timestamp: "your_timestamp", // 替换为你的微信公众平台timestamp  timestamp：当前时间戳，通常在调用微信支付接口时需要使用。
-        signature: "your_signature", // 替换为你的微信公众平台signature  signature：签名，通常在调用微信支付接口或其他需要安全认证的接口时需要使用
-        code: "thisvxid", // 传递用户在微信中的code参数
-      };
-      axios
-        .post("https://api.weixin.qq.com/sns/jscode2session", params)
-        .then((response) => {
-          // 微信验证成功，可以根据需要进行后续操作，如获取用户信息等
-          console.log("微信验证成功", response.data);
-          res.status(200).json(response.data); // 这里可以根据你的需要返回响应数据
-        })
-        .catch((error) => {
-          // 微信验证失败或请求出错，可以根据需要进行错误处理
-          console.error("微信验证失败", error);
-          res.status(500).json("微信验证失败"); // 这里可以根据你的需要返回错误响应数据
-        });
-    }
-  });
-});
 
 //登陆！！！！！！！！！！！！！！！！！！！！！！
 app.post("/loginbytour", (req, res) => {
